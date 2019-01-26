@@ -1,4 +1,4 @@
-# OpenRemoteSlide: A Fork of OpenSlide with Capability of Remote Access
+# OpenRemoteSlide: An Extension of OpenSlide for Remote Access of Whole Slide Images
 
 huangch
 
