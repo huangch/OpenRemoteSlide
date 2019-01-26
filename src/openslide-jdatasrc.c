@@ -14,7 +14,7 @@
 
 /*
  * On Windows, we cannot urlio_fopen a file and pass it to another DLL that does urlio_fread.
- * So we need to compile all our urlio_freading into the OpenSlide DLL directly.
+ * So we need to compile all our freading into the OpenSlide DLL directly.
  * We also need jpeg_mem_src for libjpegs that are too old to ship it themselves.
  *
  * This file is basically copied from libjpeg-turbo-1.3.0.
@@ -43,7 +43,7 @@ typedef struct {
 
 typedef my_source_mgr * my_src_ptr;
 
-#define INPUT_BUF_SIZE  4096	/* choose an efficiently urlio_fread'able size */
+#define INPUT_BUF_SIZE  4096	/* choose an efficiently fread'able size */
 
 
 /*
