@@ -36,7 +36,7 @@
 typedef struct {
   struct jpeg_source_mgr pub;	/* public fields */
 
-  FILE * infile;		/* source stream */
+  URLIO_FILE * infile;		/* source stream */
   JOCTET * buffer;		/* start of buffer */
   boolean start_of_file;	/* have we gotten any data yet? */
 } my_source_mgr;
@@ -210,7 +210,7 @@ static void term_source (j_decompress_ptr cinfo G_GNUC_UNUSED)
  * for closing it after finishing decompression.
  */
 
-void _openslide_jpeg_stdio_src (j_decompress_ptr cinfo, FILE * infile)
+void _openslide_jpeg_stdio_src (j_decompress_ptr cinfo, URLIO_FILE * infile)
 {
   my_src_ptr src;
 

@@ -52,7 +52,7 @@ static void error_callback(png_struct *png, const char *message) {
 }
 
 static void read_callback(png_struct *png, png_byte *buf, png_size_t len) {
-  FILE *f = png_get_io_ptr(png);
+  URLIO_FILE *f = png_get_io_ptr(png);
   if (urlio_fread(buf, len, 1, f) != 1) {
     png_error(png, "Read failed");
   }
@@ -77,7 +77,7 @@ bool _openslide_png_read(const char *filename,
   }
 
   // open and seek
-  FILE *f = _openslide_fopen(filename, "rb", err);
+  URLIO_FILE *f = _openslide_fopen(filename, "rb", err);
   if (!f) {
     goto DONE;
   }
@@ -102,7 +102,7 @@ bool _openslide_png_read(const char *filename,
   }
 
   if (!setjmp(ectx->env)) {
-    // We can't use png_init_io(): passing FILE * between libraries isn't
+    // We can't use png_init_io(): passing URLIO_FILE * between libraries isn't
     // safe on Windows
     png_set_read_fn(png, f, read_callback);
 

@@ -108,7 +108,7 @@ static void fix_byte_order(void *data, int32_t size, int64_t count,
 }
 
 // only sets *ok on failure
-static uint64_t read_uint(FILE *f, int32_t size, bool big_endian, bool *ok) {
+static uint64_t read_uint(URLIO_FILE *f, int32_t size, bool big_endian, bool *ok) {
   g_assert(ok != NULL);
 
   uint8_t buf[size];
@@ -342,7 +342,7 @@ static bool populate_item(struct _openslide_tifflike *tl,
     return true;
   }
 
-  FILE *f = _openslide_fopen(tl->filename, "rb", err);
+  URLIO_FILE *f = _openslide_fopen(tl->filename, "rb", err);
   if (!f) {
     goto FAIL;
   }
@@ -404,7 +404,7 @@ static void tiff_item_destroy(gpointer data) {
   g_slice_free(struct tiff_item, item);
 }
 
-static struct tiff_directory *read_directory(FILE *f, int64_t *diroff,
+static struct tiff_directory *read_directory(URLIO_FILE *f, int64_t *diroff,
                                              struct tiff_directory *first_dir,
                                              GHashTable *loop_detector,
                                              bool bigtiff,
@@ -561,7 +561,7 @@ struct _openslide_tifflike *_openslide_tifflike_create(const char *filename,
   GHashTable *loop_detector = NULL;
 
   // open file
-  FILE *f = _openslide_fopen(filename, "rb", err);
+  URLIO_FILE *f = _openslide_fopen(filename, "rb", err);
   if (!f) {
     goto FAIL;
   }

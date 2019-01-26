@@ -411,7 +411,7 @@ static bool mirax_detect(const char *filename, struct _openslide_tifflike *tl,
   return true;
 }
 
-static char *read_string_from_file(FILE *f, int len) {
+static char *read_string_from_file(URLIO_FILE *f, int len) {
   char *str = g_malloc(len + 1);
   str[len] = '\0';
 
@@ -422,7 +422,7 @@ static char *read_string_from_file(FILE *f, int len) {
   return str;
 }
 
-static bool read_le_int32_from_file_with_result(FILE *f, int32_t *OUT) {
+static bool read_le_int32_from_file_with_result(URLIO_FILE *f, int32_t *OUT) {
   if (urlio_fread(OUT, 4, 1, f) != 1) {
     return false;
   }
@@ -433,7 +433,7 @@ static bool read_le_int32_from_file_with_result(FILE *f, int32_t *OUT) {
   return true;
 }
 
-static int32_t read_le_int32_from_file(FILE *f) {
+static int32_t read_le_int32_from_file(URLIO_FILE *f) {
   int32_t i;
 
   if (!read_le_int32_from_file_with_result(f, &i)) {
@@ -445,7 +445,7 @@ static int32_t read_le_int32_from_file(FILE *f) {
 }
 
 
-static bool read_nonhier_record(FILE *f,
+static bool read_nonhier_record(URLIO_FILE *f,
 				int64_t nonhier_root_position,
 				int datafile_count,
 				char **datafile_paths,
@@ -677,7 +677,7 @@ static bool get_tile_position(int32_t *slide_positions,
   }
 }
 
-static bool process_hier_data_pages_from_indexfile(FILE *f,
+static bool process_hier_data_pages_from_indexfile(URLIO_FILE *f,
 						   int64_t seek_location,
 						   int datafile_count,
 						   char **datafile_paths,
@@ -965,7 +965,7 @@ static void *read_record_data(const char *path,
                               int64_t size, int64_t offset,
                               GError **err) {
   void *buffer = NULL;
-  FILE *f = _openslide_fopen(path, "rb", err);
+  URLIO_FILE *f = _openslide_fopen(path, "rb", err);
   if (!f) {
     return NULL;
   }
@@ -1053,7 +1053,7 @@ static enum image_format parse_image_format(const char *name, GError **err) {
 }
 
 static bool add_associated_image(openslide_t *osr,
-                                 FILE *indexfile,
+                                 URLIO_FILE *indexfile,
                                  int64_t nonhier_root,
                                  int datafile_count,
                                  char **datafile_paths,
@@ -1096,7 +1096,7 @@ static bool process_indexfile(openslide_t *osr,
 			      double overlap_y,
 			      int image_divisions,
 			      const struct slide_zoom_level_params *slide_zoom_level_params,
-			      FILE *indexfile,
+			      URLIO_FILE *indexfile,
 			      struct level **levels,
 			      struct _openslide_hash *quickhash1,
 			      GError **err) {
@@ -1524,7 +1524,7 @@ static bool mirax_open(openslide_t *osr, const char *filename,
   int datafile_count = 0;
   char **datafile_paths = NULL;
 
-  FILE *indexfile = NULL;
+  URLIO_FILE *indexfile = NULL;
 
   int64_t base_w = 0;
   int64_t base_h = 0;

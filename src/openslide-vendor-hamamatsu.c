@@ -176,7 +176,7 @@ static GQuark _openslide_hamamatsu_error_quark(void) {
  * as a complete JPEG.  Originally based on jdatasrc.c from IJG libjpeg.
  */
 static bool jpeg_random_access_src(j_decompress_ptr cinfo,
-                                   FILE *infile,
+                                   URLIO_FILE *infile,
                                    int64_t header_start_position,
                                    int64_t sof_position,
                                    int64_t header_stop_position,
@@ -303,7 +303,7 @@ static void jpeg_destroy_data(int32_t num_jpegs, struct jpeg **jpegs,
   g_free(levels);
 }
 
-static bool find_bitstream_start(FILE *f,
+static bool find_bitstream_start(URLIO_FILE *f,
                                  int64_t *sof_position,
                                  int64_t *header_stop_position,
                                  GError **err) {
@@ -374,7 +374,7 @@ static bool find_bitstream_start(FILE *f,
   return true;
 }
 
-static bool find_next_ff_marker(FILE *f,
+static bool find_next_ff_marker(URLIO_FILE *f,
                                 uint8_t *buf_start,
                                 uint8_t **buf,
                                 int buf_size,
@@ -441,7 +441,7 @@ static bool find_next_ff_marker(FILE *f,
 }
 
 static bool _compute_mcu_start(struct jpeg *jpeg,
-			       FILE *f,
+			       URLIO_FILE *f,
 			       int64_t target,
 			       GError **err) {
   // special case for first
@@ -519,7 +519,7 @@ static bool _compute_mcu_start(struct jpeg *jpeg,
 
 static bool compute_mcu_start(openslide_t *osr,
 			      struct jpeg *jpeg,
-			      FILE *f,
+			      URLIO_FILE *f,
 			      int64_t tileno,
 			      int64_t *start_position,
 			      int64_t *stop_position,
@@ -570,7 +570,7 @@ OUT:
 // clobber warnings in read_from_jpeg() on gcc 4.9
 static bool compute_mcu_start_volatile(openslide_t *osr,
                                        struct jpeg *jpeg,
-                                       FILE *f,
+                                       URLIO_FILE *f,
                                        int64_t tileno,
                                        volatile int64_t *start_position,
                                        volatile int64_t *stop_position,
@@ -595,7 +595,7 @@ static bool read_from_jpeg(openslide_t *osr,
   volatile bool success = false;
 
   // open file
-  FILE *f = _openslide_fopen(jpeg->filename, "rb", err);
+  URLIO_FILE *f = _openslide_fopen(jpeg->filename, "rb", err);
   if (f == NULL) {
     return false;
   }
@@ -876,7 +876,7 @@ static gint width_compare(gconstpointer a, gconstpointer b) {
 // for debugging
 static bool verify_mcu_starts(int32_t num_jpegs, struct jpeg **jpegs,
                               GError **err) {
-  FILE *f = NULL;
+  URLIO_FILE *f = NULL;
   int32_t current_jpeg = 0;
   int32_t current_mcu_start = 0;
 
@@ -909,7 +909,7 @@ static gpointer restart_marker_thread_func(gpointer d) {
   int32_t current_jpeg = 0;
   int32_t current_mcu_start = 0;
 
-  FILE *current_file = NULL;
+  URLIO_FILE *current_file = NULL;
 
   GError *tmp_err = NULL;
 
@@ -999,7 +999,7 @@ static gpointer restart_marker_thread_func(gpointer d) {
 }
 
 // if !use_jpeg_dimensions, use *w and *h instead of setting them
-static bool validate_jpeg_header(FILE *f, bool use_jpeg_dimensions,
+static bool validate_jpeg_header(URLIO_FILE *f, bool use_jpeg_dimensions,
                                  int32_t *w, int32_t *h,
                                  int32_t *tw, int32_t *th,
                                  int64_t *sof_position,
@@ -1112,7 +1112,7 @@ DONE:
   return success;
 }
 
-static int64_t *extract_optimisations_for_one_jpeg(FILE *opt_f,
+static int64_t *extract_optimisations_for_one_jpeg(URLIO_FILE *opt_f,
                                                    int32_t tiles_down,
                                                    int32_t tiles_across) {
   int32_t tile_count = tiles_across * tiles_down;
@@ -1425,7 +1425,7 @@ static struct jpeg_level *create_jpeg_level(openslide_t *osr,
 static bool hamamatsu_vms_part2(openslide_t *osr,
 				int num_jpegs, char **image_filenames,
 				int num_jpeg_cols, int num_jpeg_rows,
-				FILE *optimisation_file,
+				URLIO_FILE *optimisation_file,
 				GError **err) {
   struct jpeg_level **levels = NULL;
   int32_t level_count = 0;
@@ -1442,7 +1442,7 @@ static bool hamamatsu_vms_part2(openslide_t *osr,
 
     jp->filename = g_strdup(image_filenames[i]);
 
-    FILE *f;
+    URLIO_FILE *f;
     if ((f = _openslide_fopen(jp->filename, "rb", err)) == NULL) {
       g_prefix_error(err, "Can't open JPEG %d: ", i);
       goto FAIL;
@@ -1608,7 +1608,7 @@ static bool ngr_read_tile(openslide_t *osr,
 
   if (!tiledata) {
     // read the tile data
-    FILE *f = _openslide_fopen(l->filename, "rb", err);
+    URLIO_FILE *f = _openslide_fopen(l->filename, "rb", err);
     if (!f) {
       return false;
     }
@@ -1690,7 +1690,7 @@ static const struct _openslide_ops ngr_ops = {
   .destroy = ngr_destroy,
 };
 
-static int32_t read_le_int32_from_file(FILE *f) {
+static int32_t read_le_int32_from_file(URLIO_FILE *f) {
   int32_t i;
 
   if (urlio_fread(&i, 4, 1, f) != 1) {
@@ -1718,7 +1718,7 @@ static bool hamamatsu_vmu_part2(openslide_t *osr,
 
     l->filename = g_strdup(image_filenames[i]);
 
-    FILE *f;
+    URLIO_FILE *f;
     if ((f = _openslide_fopen(l->filename, "rb", err)) == NULL) {
       goto FAIL;
     }
@@ -2015,7 +2015,7 @@ static bool hamamatsu_vms_vmu_open(openslide_t *osr, const char *filename,
   // finalize depending on what format
   if (groupname == GROUP_VMS) {
     // open OptimisationFile
-    FILE *optimisation_file = NULL;
+    URLIO_FILE *optimisation_file = NULL;
     char *tmp = g_key_file_get_string(key_file,
 				      GROUP_VMS,
 				      KEY_OPTIMISATION_FILE,
@@ -2240,7 +2240,7 @@ static bool hamamatsu_ndpi_open(openslide_t *osr, const char *filename,
   bool restart_marker_scan = false;
 
   // open file
-  FILE *f = _openslide_fopen(filename, "rb", err);
+  URLIO_FILE *f = _openslide_fopen(filename, "rb", err);
   if (!f) {
     goto FAIL;
   }

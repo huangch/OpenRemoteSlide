@@ -274,7 +274,7 @@ void _openslide_jpeg_decompress_destroy(struct _openslide_jpeg_decompress *dc) {
   g_slice_free(struct _openslide_jpeg_decompress, dc);
 }
 
-static bool jpeg_get_dimensions(FILE *f,  // or:
+static bool jpeg_get_dimensions(URLIO_FILE *f,  // or:
                                 const void *buf, uint32_t buflen,
                                 int32_t *w, int32_t *h,
                                 GError **err) {
@@ -321,7 +321,7 @@ bool _openslide_jpeg_read_dimensions(const char *filename,
                                      int64_t offset,
                                      int32_t *w, int32_t *h,
                                      GError **err) {
-  FILE *f = _openslide_fopen(filename, "rb", err);
+  URLIO_FILE *f = _openslide_fopen(filename, "rb", err);
   if (f == NULL) {
     return false;
   }
@@ -343,7 +343,7 @@ bool _openslide_jpeg_decode_buffer_dimensions(const void *buf, uint32_t len,
   return jpeg_get_dimensions(NULL, buf, len, w, h, err);
 }
 
-static bool jpeg_decode(FILE *f,  // or:
+static bool jpeg_decode(URLIO_FILE *f,  // or:
                         const void *buf, uint32_t buflen,
                         void *dest, bool grayscale,
                         int32_t w, int32_t h,
@@ -395,7 +395,7 @@ bool _openslide_jpeg_read(const char *filename,
                           GError **err) {
   //g_debug("read JPEG: %s %"PRId64, filename, offset);
 
-  FILE *f = _openslide_fopen(filename, "rb", err);
+  URLIO_FILE *f = _openslide_fopen(filename, "rb", err);
   if (f == NULL) {
     return false;
   }

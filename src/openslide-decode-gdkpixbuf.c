@@ -99,7 +99,7 @@ bool _openslide_gdkpixbuf_read(const char *format,
   };
 
   // open and seek
-  FILE *f = _openslide_fopen(filename, "rb", err);
+  URLIO_FILE *f = _openslide_fopen(filename, "rb", err);
   if (!f) {
     goto DONE;
   }
