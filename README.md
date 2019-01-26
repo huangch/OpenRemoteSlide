@@ -1,4 +1,4 @@
-# OpenRemoteSlide: Accessing Digital Pathological Whole-Slide Images from Remote
+# OpenRemoteSlide: A Fork of OpenSlide with Capability of Remote Access
 
 huangch
 
