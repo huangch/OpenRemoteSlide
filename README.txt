@@ -2,8 +2,6 @@ OpenRemoteSlide
 
 huangch
 
-https://openremoteslide.org/
-
 
 ==========================
 
@@ -23,6 +21,7 @@ openslide-show-properties path/to/a/wsi
 E.g.:
 
 ./openslide-show-properties ./54089012-2e2f-453f-8b88-7f80d6791eb7.svs
+
 
 In OpenRemoteSlide, you can do this:
 
