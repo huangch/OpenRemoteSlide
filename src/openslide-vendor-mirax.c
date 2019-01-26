@@ -4,6 +4,8 @@
  *  Copyright (c) 2007-2013 Carnegie Mellon University
  *  Copyright (c) 2011 Google, Inc.
  *  Copyright (c) 2012 Pathomation
+ *  Modified 2019 huangch
+ *
  *  All rights reserved.
  *
  *  OpenSlide is free software: you can redistribute it and/or modify

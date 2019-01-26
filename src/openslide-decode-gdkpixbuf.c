@@ -3,6 +3,8 @@
  *
  *  Copyright (c) 2007-2014 Carnegie Mellon University
  *  Copyright (c) 2011 Google, Inc.
+ *  Modified 2019 huangch
+ *
  *  All rights reserved.
  *
  *  OpenSlide is free software: you can redistribute it and/or modify

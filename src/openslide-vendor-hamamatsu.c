@@ -4,6 +4,8 @@
  *  Copyright (c) 2007-2014 Carnegie Mellon University
  *  Copyright (c) 2011, 2016 Google, Inc.
  *  Copyright (c) 2016 Benjamin Gilbert
+ *  Modified 2019 huangch
+ *
  *  All rights reserved.
  *
  *  OpenSlide is free software: you can redistribute it and/or modify
