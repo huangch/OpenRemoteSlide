@@ -3,9 +3,6 @@
 huangch
 
 
-==========================
-
-
 What is this?
 =============
 
@@ -44,6 +41,6 @@ The figure shows comparison of the costs of data transfer and storage performanc
  
 Based on OpenRemoteSlide, the average cost (the actual size of data transferred and stored) for obtaining the image properties is ~7.5 MB, which is less than 1% of the data file size of the chosen image. For acquiring a (4000x4000) image from level 0, the average cost is ~19.8 MB, about 1.8% of the total data size. For randomly acquiring 100 image samples with size of (400x400), the average cost is ~233 MB, about 21.2% of the total data size. In other words, the proposed OpenRemoteSlide can save the cost of accessing WSIs from remote from 78.8% up to 99.3%, depending on the desired coefficients for the data acquisition.
 
-For the other details, please see README-OpenSlide.txt
+For the other details, please see README-OpenSlide.txt. You can also find the original distribution of OpenSlide from: http://openslide.org
 
 Good luck!
