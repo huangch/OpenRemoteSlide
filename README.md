@@ -12,7 +12,7 @@ Using the tool, openremoteslide-show-properties, as an example: In OpenSlide you
 
 openslide-show-properties path/to/a/wsi
 
-E.g.:
+E.g., given a whole slide image file 54089012-2e2f-453f-8b88-7f80d6791eb7.svs, you can extract the properties of the svs by:
 
 ./openslide-show-properties ./54089012-2e2f-453f-8b88-7f80d6791eb7.svs
 
@@ -21,11 +21,11 @@ In OpenRemoteSlide, you can do this:
 
 openslide-show-properties url/to/a/wsi
 
-E.g.:
+E.g., you can access TCGA whole slide image (in svs format) by:
 
 ./openslide-show-properties https://api.gdc.cancer.gov/legacy/data/54089012-2e2f-453f-8b88-7f80d6791eb7
 
-54089012-2e2f-453f-8b88-7f80d6791eb7 is the UUID of a TCGA whole slide image.
+where 54089012-2e2f-453f-8b88-7f80d6791eb7 is the UUID of a TCGA whole slide image.
 
 
 Why I'm doing this?
