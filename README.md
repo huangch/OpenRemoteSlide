@@ -28,6 +28,17 @@ E.g., you can access TCGA whole slide image (in svs format) by:
 where 54089012-2e2f-453f-8b88-7f80d6791eb7 is the UUID of a TCGA whole slide image.
 
 
+Here is another example: the command,
+
+./openslide-write-png https://api.gdc.cancer.gov/legacy/data/54089012-2e2f-453f-8b88-7f80d6791eb7 0 0 3 3237 2669 output.png
+
+helps you to read a defined region of interest on a whole slide image of TCGA over the Internet.
+
+
+OpenRemoteSlide is compatible with OpenSlide, except the Windows version.
+
+
+
 Why I'm doing this?
 ===================
 
