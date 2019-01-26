@@ -8,7 +8,7 @@ What is this?
 
 This library is an extension of OpenSlide (you probably should not be here if you don't know what it is). OpenRemoteSlide is just similar to OpenSlide, except OpenRemoteSlide can read whole slide images from remote. 
 
-Using the tool, openremoteslide-show-properties, as an example: In OpenSlide you can read the properties of a whole slide image by:
+In OpenSlide, the tool openremoteslide-show-properties is able to show the properties of a whole slide image file:
 
 openslide-show-properties path/to/a/wsi
 
