@@ -2,6 +2,7 @@
  *  OpenSlide, a library for reading whole slide image files
  *
  *  Copyright (c) 2007-2014 Carnegie Mellon University
+ *  Copyright (c) 2019 huangch
  *  All rights reserved.
  *
  *  OpenSlide is free software: you can redistribute it and/or modify
@@ -26,6 +27,7 @@
 
 #include "openslide.h"
 #include "openslide-hash.h"
+#include "openslide-url.h"
 
 #include <glib.h>
 #include <stdio.h>
@@ -71,6 +73,9 @@ struct _openslide {
 
   // error handling, NULL if no error
   gpointer error; // must use g_atomic_pointer!
+
+  // file/url name as cache id;
+  const char *urlname;
 };
 
 struct _openslide_level {
@@ -144,7 +149,7 @@ GKeyFile *_openslide_read_key_file(const char *filename, int32_t max_size,
                                    GKeyFileFlags flags, GError **err);
 
 /* fopen() wrapper which properly sets FD_CLOEXEC */
-FILE *_openslide_fopen(const char *path, const char *mode, GError **err);
+URLIO_FILE *_openslide_fopen(const char *path, const char *mode, GError **err);
 
 /* Parse string to double, returning NAN on failure.  Accept both comma
    and period as decimal separator. */

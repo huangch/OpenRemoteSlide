@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([OpenSlide], [3.4.1], [openslide-users@lists.andrew.cmu.edu], [openslide], [https://openslide.org])
+AC_INIT([OpenRemoteSlide], [3.4.1], [openslide-users@lists.andrew.cmu.edu], [openremoteslide], [https://openremoteslide.org])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([foreign subdir-objects 1.11.1 dist-xz])
@@ -130,6 +130,7 @@ PKG_CHECK_MODULES(LIBPNG, [libpng > 1.2])
 PKG_CHECK_MODULES(GDKPIXBUF, [gdk-pixbuf-2.0 >= 2.14])
 PKG_CHECK_MODULES(LIBXML2, [libxml-2.0])
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= 3.6.20])
+PKG_CHECK_MODULES(LIBCURL, [libcurl])
 
 # optional
 PKG_CHECK_MODULES(VALGRIND, [valgrind], [

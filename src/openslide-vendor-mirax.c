@@ -413,7 +413,7 @@ static char *read_string_from_file(FILE *f, int len) {
   char *str = g_malloc(len + 1);
   str[len] = '\0';
 
-  if (fread(str, len, 1, f) != 1) {
+  if (urlio_fread(str, len, 1, f) != 1) {
     g_free(str);
     return NULL;
   }
@@ -421,7 +421,7 @@ static char *read_string_from_file(FILE *f, int len) {
 }
 
 static bool read_le_int32_from_file_with_result(FILE *f, int32_t *OUT) {
-  if (fread(OUT, 4, 1, f) != 1) {
+  if (urlio_fread(OUT, 4, 1, f) != 1) {
     return false;
   }
 
@@ -453,7 +453,7 @@ static bool read_nonhier_record(FILE *f,
 				GError **err) {
   g_return_val_if_fail(recordno >= 0, false);
 
-  if (fseeko(f, nonhier_root_position, SEEK_SET) == -1) {
+  if (urlio_fseek(f, nonhier_root_position, SEEK_SET) == -1) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Cannot seek to nonhier root");
     return false;
@@ -467,7 +467,7 @@ static bool read_nonhier_record(FILE *f,
   }
 
   // seek to record pointer
-  if (fseeko(f, ptr + 4 * recordno, SEEK_SET) == -1) {
+  if (urlio_fseek(f, ptr + 4 * recordno, SEEK_SET) == -1) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Cannot seek to nonhier record pointer %d", recordno);
     return false;
@@ -482,7 +482,7 @@ static bool read_nonhier_record(FILE *f,
   }
 
   // seek
-  if (fseeko(f, ptr, SEEK_SET) == -1) {
+  if (urlio_fseek(f, ptr, SEEK_SET) == -1) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Cannot seek to nonhier record %d", recordno);
     return false;
@@ -504,7 +504,7 @@ static bool read_nonhier_record(FILE *f,
   }
 
   // seek to offset
-  if (fseeko(f, ptr, SEEK_SET) == -1) {
+  if (urlio_fseek(f, ptr, SEEK_SET) == -1) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Can't seek to initial data page");
     return false;
@@ -704,7 +704,7 @@ static bool process_hier_data_pages_from_indexfile(FILE *f,
 
     //    g_debug("reading zoom_level %d", zoom_level);
 
-    if (fseeko(f, seek_location, SEEK_SET) == -1) {
+    if (urlio_fseek(f, seek_location, SEEK_SET) == -1) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Cannot seek to zoom level pointer %d", zoom_level);
       goto DONE;
@@ -716,7 +716,7 @@ static bool process_hier_data_pages_from_indexfile(FILE *f,
                   "Can't read zoom level pointer");
       goto DONE;
     }
-    if (fseeko(f, ptr, SEEK_SET) == -1) {
+    if (urlio_fseek(f, ptr, SEEK_SET) == -1) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Cannot seek to start of data pages");
       goto DONE;
@@ -738,7 +738,7 @@ static bool process_hier_data_pages_from_indexfile(FILE *f,
     }
 
     // seek to offset
-    if (fseeko(f, ptr, SEEK_SET) == -1) {
+    if (urlio_fseek(f, ptr, SEEK_SET) == -1) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Can't seek to initial data page");
       goto DONE;
@@ -968,23 +968,23 @@ static void *read_record_data(const char *path,
     return NULL;
   }
 
-  if (fseeko(f, offset, SEEK_SET) == -1) {
+  if (urlio_fseek(f, offset, SEEK_SET) == -1) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Cannot seek data file");
-    fclose(f);
+    urlio_fclose(f);
     return NULL;
   }
 
   buffer = g_malloc(size);
-  if (fread(buffer, sizeof(char), size, f) != (size_t) size) {
+  if (urlio_fread(buffer, sizeof(char), size, f) != (size_t) size) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Error while reading data");
     g_free(buffer);
-    fclose(f);
+    urlio_fclose(f);
     return NULL;
   }
 
-  fclose(f);
+  urlio_fclose(f);
   return buffer;
 }
 
@@ -1114,7 +1114,7 @@ static bool process_indexfile(openslide_t *osr,
 
   int32_t *slide_positions = NULL;
 
-  rewind(indexfile);
+  urlio_rewind(indexfile);
 
   // save root positions
   const int64_t hier_root = strlen(INDEX_VERSION) + strlen(uuid);
@@ -1256,7 +1256,7 @@ static bool process_indexfile(openslide_t *osr,
   }
 
   // read hierarchical sections
-  if (fseeko(indexfile, hier_root, SEEK_SET) == -1) {
+  if (urlio_fseek(indexfile, hier_root, SEEK_SET) == -1) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Cannot seek to hier sections root");
     goto DONE;
@@ -2048,7 +2048,7 @@ static bool mirax_open(openslide_t *osr, const char *filename,
     g_key_file_free(slidedat);
   }
   if (indexfile) {
-    fclose(indexfile);
+    urlio_fclose(indexfile);
   }
 
   return success;

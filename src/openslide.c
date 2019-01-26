@@ -237,6 +237,8 @@ static const char **strv_from_hashtable_keys(GHashTable *h) {
 openslide_t *openslide_open(const char *filename) {
   GError *tmp_err = NULL;
 
+  urlio_finitial();
+
   g_assert(openslide_was_dynamically_loaded);
 
   // detect format
@@ -347,6 +349,9 @@ openslide_t *openslide_open(const char *filename) {
   osr->cache = _openslide_cache_create(_OPENSLIDE_USEFUL_CACHE_SIZE);
   //osr->cache = _openslide_cache_create(0);
 
+  osr->urlname = (char*) malloc((strlen(filename)+1) * sizeof(char));
+  strcpy(osr->urlname, filename);
+
   return osr;
 }
 
@@ -369,6 +374,9 @@ void openslide_close(openslide_t *osr) {
   g_free(g_atomic_pointer_get(&osr->error));
 
   g_slice_free(openslide_t, osr);
+
+  urlio_frelease(osr->urlname);
+  free(osr->urlname);
 }
 
 

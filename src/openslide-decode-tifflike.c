@@ -110,7 +110,7 @@ static uint64_t read_uint(FILE *f, int32_t size, bool big_endian, bool *ok) {
   g_assert(ok != NULL);
 
   uint8_t buf[size];
-  if (fread(buf, size, 1, f) != 1) {
+  if (urlio_fread(buf, size, 1, f) != 1) {
     *ok = false;
     return 0;
   }
@@ -358,11 +358,11 @@ static bool populate_item(struct _openslide_tifflike *tl,
   }
 
   //g_debug("reading tiff value: len: %"PRId64", offset %"PRIu64, len, item->offset);
-  if (fseeko(f, item->offset, SEEK_SET)) {
+  if (urlio_fseek(f, item->offset, SEEK_SET)) {
     _openslide_io_error(err, "Couldn't seek to read TIFF value");
     goto FAIL;
   }
-  if (fread(buf, len, 1, f) != 1) {
+  if (urlio_fread(buf, len, 1, f) != 1) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Couldn't read TIFF value");
     goto FAIL;
@@ -379,7 +379,7 @@ FAIL:
   g_mutex_unlock(tl->value_lock);
   g_free(buf);
   if (f) {
-    fclose(f);
+    urlio_fclose(f);
   }
   return success;
 }
@@ -434,7 +434,7 @@ static struct tiff_directory *read_directory(FILE *f, int64_t *diroff,
   g_hash_table_insert(loop_detector, key, NULL);
 
   // no loop, let's seek
-  if (fseeko(f, off, SEEK_SET) != 0) {
+  if (urlio_fseek(f, off, SEEK_SET) != 0) {
     _openslide_io_error(err, "Cannot seek to offset");
     goto FAIL;
   }
@@ -493,7 +493,7 @@ static struct tiff_directory *read_directory(FILE *f, int64_t *diroff,
 
     // read in the value/offset
     uint8_t value[bigtiff ? 8 : 4];
-    if (fread(value, sizeof(value), 1, f) != 1) {
+    if (urlio_fread(value, sizeof(value), 1, f) != 1) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Cannot read value/offset");
       goto FAIL;
@@ -566,7 +566,7 @@ struct _openslide_tifflike *_openslide_tifflike_create(const char *filename,
 
   // read and check magic
   uint16_t magic;
-  if (fread(&magic, sizeof magic, 1, f) != 1) {
+  if (urlio_fread(&magic, sizeof magic, 1, f) != 1) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Can't read TIFF magic number");
     goto FAIL;
@@ -694,7 +694,7 @@ struct _openslide_tifflike *_openslide_tifflike_create(const char *filename,
   }
 
   g_hash_table_unref(loop_detector);
-  fclose(f);
+  urlio_fclose(f);
   return tl;
 
 FAIL:
@@ -703,7 +703,7 @@ FAIL:
     g_hash_table_unref(loop_detector);
   }
   if (f) {
-    fclose(f);
+    urlio_fclose(f);
   }
   return NULL;
 }

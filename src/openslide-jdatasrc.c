@@ -11,8 +11,8 @@
  */
 
 /*
- * On Windows, we cannot fopen a file and pass it to another DLL that does fread.
- * So we need to compile all our freading into the OpenSlide DLL directly.
+ * On Windows, we cannot urlio_fopen a file and pass it to another DLL that does urlio_fread.
+ * So we need to compile all our urlio_freading into the OpenSlide DLL directly.
  * We also need jpeg_mem_src for libjpegs that are too old to ship it themselves.
  *
  * This file is basically copied from libjpeg-turbo-1.3.0.
@@ -41,7 +41,7 @@ typedef struct {
 
 typedef my_source_mgr * my_src_ptr;
 
-#define INPUT_BUF_SIZE  4096	/* choose an efficiently fread'able size */
+#define INPUT_BUF_SIZE  4096	/* choose an efficiently urlio_fread'able size */
 
 
 /*
@@ -104,7 +104,7 @@ static boolean fill_input_buffer (j_decompress_ptr cinfo)
   my_src_ptr src = (my_src_ptr) cinfo->src;
   size_t nbytes;
 
-  nbytes = fread(src->buffer, 1, INPUT_BUF_SIZE, src->infile);
+  nbytes = urlio_fread(src->buffer, 1, INPUT_BUF_SIZE, src->infile);
 
   if (nbytes <= 0) {
     if (src->start_of_file)	/* Treat empty input file as fatal error */
@@ -160,7 +160,7 @@ static void skip_input_data (j_decompress_ptr cinfo, long num_bytes)
 {
   struct jpeg_source_mgr * src = cinfo->src;
 
-  /* Just a dumb implementation for now.  Could use fseek() except
+  /* Just a dumb implementation for now.  Could use urlio_fseek() except
    * it doesn't work on pipes.  Not clear that being smart is worth
    * any trouble anyway --- large skips are infrequent.
    */

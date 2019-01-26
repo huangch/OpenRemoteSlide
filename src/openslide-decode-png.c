@@ -51,7 +51,7 @@ static void error_callback(png_struct *png, const char *message) {
 
 static void read_callback(png_struct *png, png_byte *buf, png_size_t len) {
   FILE *f = png_get_io_ptr(png);
-  if (fread(buf, len, 1, f) != 1) {
+  if (urlio_fread(buf, len, 1, f) != 1) {
     png_error(png, "Read failed");
   }
 }
@@ -79,8 +79,8 @@ bool _openslide_png_read(const char *filename,
   if (!f) {
     goto DONE;
   }
-  if (fseeko(f, offset, SEEK_SET)) {
-    _openslide_io_error(err, "Couldn't fseek %s", filename);
+  if (urlio_fseek(f, offset, SEEK_SET)) {
+    _openslide_io_error(err, "Couldn't urlio_fseek %s", filename);
     goto DONE;
   }
 
@@ -178,7 +178,7 @@ bool _openslide_png_read(const char *filename,
 DONE:
   png_destroy_read_struct(&png, &info, NULL);
   if (f) {
-    fclose(f);
+    urlio_fclose(f);
   }
   g_slice_free1(h * sizeof(*rows), rows);
   g_slice_free(struct png_error_ctx, ectx);

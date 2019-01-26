@@ -324,15 +324,15 @@ bool _openslide_jpeg_read_dimensions(const char *filename,
   if (f == NULL) {
     return false;
   }
-  if (offset && fseeko(f, offset, SEEK_SET) == -1) {
+  if (offset && urlio_fseek(f, offset, SEEK_SET) == -1) {
     _openslide_io_error(err, "Cannot seek to offset");
-    fclose(f);
+    urlio_fclose(f);
     return false;
   }
 
   bool success = jpeg_get_dimensions(f, NULL, 0, w, h, err);
 
-  fclose(f);
+  urlio_fclose(f);
   return success;
 }
 
@@ -398,15 +398,15 @@ bool _openslide_jpeg_read(const char *filename,
   if (f == NULL) {
     return false;
   }
-  if (offset && fseeko(f, offset, SEEK_SET) == -1) {
+  if (offset && urlio_fseek(f, offset, SEEK_SET) == -1) {
     _openslide_io_error(err, "Cannot seek to offset");
-    fclose(f);
+    urlio_fclose(f);
     return false;
   }
 
   bool success = jpeg_decode(f, NULL, 0, dest, false, w, h, err);
 
-  fclose(f);
+  urlio_fclose(f);
   return success;
 }
 

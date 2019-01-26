@@ -101,8 +101,8 @@ bool _openslide_gdkpixbuf_read(const char *format,
   if (!f) {
     goto DONE;
   }
-  if (fseeko(f, offset, SEEK_SET)) {
-    _openslide_io_error(err, "Couldn't fseek %s", filename);
+  if (urlio_fseek(f, offset, SEEK_SET)) {
+    _openslide_io_error(err, "Couldn't urlio_fseek %s", filename);
     goto DONE;
   }
 
@@ -115,7 +115,7 @@ bool _openslide_gdkpixbuf_read(const char *format,
 
   // read data
   while (length) {
-    size_t count = fread(buf, 1, MIN(length, BUFSIZE), f);
+    size_t count = urlio_fread(buf, 1, MIN(length, BUFSIZE), f);
     if (!count) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Short read loading pixbuf from %s", filename);
@@ -162,7 +162,7 @@ DONE:
     g_object_unref(loader);
   }
   if (f) {
-    fclose(f);
+    urlio_fclose(f);
   }
   g_slice_free1(BUFSIZE, buf);
 

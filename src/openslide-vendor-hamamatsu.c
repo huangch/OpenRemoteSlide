@@ -213,11 +213,11 @@ static bool jpeg_random_access_src(j_decompress_ptr cinfo,
 
   // read in the 2 parts
   //  g_debug("reading header from %"PRId64, header_start_position);
-  if (fseeko(infile, header_start_position, SEEK_SET)) {
+  if (urlio_fseek(infile, header_start_position, SEEK_SET)) {
     _openslide_io_error(err, "Couldn't seek to header start");
     return false;
   }
-  if (!fread(buffer, header_length, 1, infile)) {
+  if (!urlio_fread(buffer, header_length, 1, infile)) {
     g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                 "Cannot read header in JPEG at %"PRId64,
                 header_start_position);
@@ -226,11 +226,11 @@ static bool jpeg_random_access_src(j_decompress_ptr cinfo,
 
   if (data_length) {
     //  g_debug("reading from %"PRId64, start_position);
-    if (fseeko(infile, start_position, SEEK_SET)) {
+    if (urlio_fseek(infile, start_position, SEEK_SET)) {
       _openslide_io_error(err, "Couldn't seek to data start");
       return false;
     }
-    if (!fread(buffer + header_length, data_length, 1, infile)) {
+    if (!urlio_fread(buffer + header_length, data_length, 1, infile)) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Cannot read data in JPEG at %"PRId64, start_position);
       return false;
@@ -313,8 +313,8 @@ static bool find_bitstream_start(FILE *f,
 
   while (true) {
     // read marker
-    pos = ftello(f);
-    if (fread(buf, sizeof(buf), 1, f) != 1) {
+    pos = urlio_ftell(f);
+    if (urlio_fread(buf, sizeof(buf), 1, f) != 1) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Couldn't read JPEG marker at %"PRId64, pos);
       return false;
@@ -340,7 +340,7 @@ static bool find_bitstream_start(FILE *f,
     }
 
     // read length
-    if (fread(buf, sizeof(buf), 1, f) != 1) {
+    if (urlio_fread(buf, sizeof(buf), 1, f) != 1) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Couldn't read JPEG marker length at %"PRId64, pos);
       return false;
@@ -349,7 +349,7 @@ static bool find_bitstream_start(FILE *f,
     len = GUINT16_FROM_BE(len);
 
     // seek
-    if (fseeko(f, pos + sizeof(buf) + len, SEEK_SET)) {
+    if (urlio_fseek(f, pos + sizeof(buf) + len, SEEK_SET)) {
       _openslide_io_error(err, "Couldn't seek to next marker");
       return false;
     }
@@ -357,7 +357,7 @@ static bool find_bitstream_start(FILE *f,
     // check for SOS
     if (marker_byte == 0xDA) {
       // found it; done
-      *header_stop_position = ftello(f);
+      *header_stop_position = urlio_ftell(f);
       //g_debug("found bitstream start at %"PRId64, *header_stop_position);
       break;
     }
@@ -382,7 +382,7 @@ static bool find_next_ff_marker(FILE *f,
                                 int *bytes_in_buf,
                                 GError **err) {
   //g_debug("bytes_in_buf: %d", *bytes_in_buf);
-  int64_t file_pos = ftello(f);
+  int64_t file_pos = urlio_ftell(f);
   bool last_was_ff = false;
   while (true) {
     if (*bytes_in_buf == 0) {
@@ -391,7 +391,7 @@ static bool find_next_ff_marker(FILE *f,
       int bytes_to_read = MIN(buf_size, file_size - file_pos);
 
       //g_debug("bytes_to_read: %d", bytes_to_read);
-      size_t result = fread(*buf, bytes_to_read, 1, f);
+      size_t result = urlio_fread(*buf, bytes_to_read, 1, f);
       if (result == 0) {
         g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                     "Short read searching for JPEG marker at %"PRId64,
@@ -457,13 +457,13 @@ static bool _compute_mcu_start(struct jpeg *jpeg,
     }
     if (offset != -1) {
       uint8_t buf[2];
-      if (fseeko(f, offset - 2, SEEK_SET)) {
+      if (urlio_fseek(f, offset - 2, SEEK_SET)) {
         _openslide_io_error(err, "Couldn't seek to recorded restart "
                             "marker at %"PRId64, offset - 2);
         return false;
       }
 
-      size_t result = fread(buf, 2, 1, f);
+      size_t result = urlio_fread(buf, 2, 1, f);
       if (result == 0 ||
           buf[0] != 0xFF || buf[1] < 0xD0 || buf[1] > 0xD7) {
         g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
@@ -485,7 +485,7 @@ static bool _compute_mcu_start(struct jpeg *jpeg,
   //  g_debug("target: %"PRId64", first_good: %"PRId64, target, first_good);
 
   // now search for the new restart markers
-  if (fseeko(f, jpeg->mcu_starts[first_good], SEEK_SET)) {
+  if (urlio_fseek(f, jpeg->mcu_starts[first_good], SEEK_SET)) {
     _openslide_io_error(err, "Couldn't seek to first good restart marker");
     return false;
   }
@@ -653,7 +653,7 @@ static bool read_from_jpeg(openslide_t *osr,
 
 OUT:
   _openslide_jpeg_decompress_destroy(dc);
-  fclose(f);
+  urlio_fclose(f);
   return success;
 }
 
@@ -865,7 +865,7 @@ static gint width_compare(gconstpointer a, gconstpointer b) {
                   "assertion: " # ASSERTION,				\
                   current_jpeg, current_mcu_start);			\
       if (f) {								\
-        fclose(f);							\
+        urlio_fclose(f);							\
       }									\
       return false;							\
     }									\
@@ -887,14 +887,14 @@ static bool verify_mcu_starts(int32_t num_jpegs, struct jpeg **jpegs,
          current_mcu_start++) {
       int64_t offset = jp->mcu_starts[current_mcu_start];
       CHK(offset != -1);
-      int seek_failed = fseeko(f, offset - 2, SEEK_SET);
+      int seek_failed = urlio_fseek(f, offset - 2, SEEK_SET);
       CHK(!seek_failed);
-      int prefix = getc(f);
+      int prefix = urlio_fgetc(f);
       CHK(prefix == 0xFF);
-      int marker = getc(f);
+      int marker = urlio_fgetc(f);
       CHK(marker >= 0xD0 && marker <= 0xD7);
     }
-    fclose(f);
+    urlio_fclose(f);
     f = NULL;
   }
   return true;
@@ -960,7 +960,7 @@ static gpointer restart_marker_thread_func(gpointer d) {
       if (current_file == NULL) {
 	current_file = _openslide_fopen(jp->filename, "rb", &tmp_err);
 	if (current_file == NULL) {
-	  //g_debug("restart_marker_thread_func fopen failed");
+	  //g_debug("restart_marker_thread_func urlio_fopen failed");
 	  break;
 	}
       }
@@ -968,7 +968,7 @@ static gpointer restart_marker_thread_func(gpointer d) {
       if (!compute_mcu_start(osr, jp, current_file, current_mcu_start,
                              NULL, NULL, &tmp_err)) {
         //g_debug("restart_marker_thread_func compute_mcu_start failed");
-        fclose(current_file);
+        urlio_fclose(current_file);
         break;
       }
 
@@ -976,7 +976,7 @@ static gpointer restart_marker_thread_func(gpointer d) {
       if (current_mcu_start >= jp->tile_count) {
 	current_mcu_start = 0;
 	current_jpeg++;
-	fclose(current_file);
+	urlio_fclose(current_file);
 	current_file = NULL;
       }
     } else {
@@ -1011,7 +1011,7 @@ static bool validate_jpeg_header(FILE *f, bool use_jpeg_dimensions,
   }
 
   // find limits of JPEG header
-  int64_t header_start = ftello(f);
+  int64_t header_start = urlio_ftell(f);
   if (!find_bitstream_start(f, sof_position, header_stop_position, err)) {
     return false;
   }
@@ -1139,7 +1139,7 @@ static int64_t *extract_optimisations_for_one_jpeg(FILE *opt_f,
       int64_t i64;
     } u;
 
-    if (fread(u.buf, sizeof(u.buf), 1, opt_f) != 1) {
+    if (urlio_fread(u.buf, sizeof(u.buf), 1, opt_f) != 1) {
       // EOF or error, we've done all we can
 
       if (row == 0) {
@@ -1460,7 +1460,7 @@ static bool hamamatsu_vms_part2(openslide_t *osr,
                               &jp->header_stop_position,
                               comment_ptr, err)) {
       g_prefix_error(err, "Can't validate JPEG %d: ", i);
-      fclose(f);
+      urlio_fclose(f);
       goto FAIL;
     }
     jp->tiles_across = jp->width / jp->tile_width;
@@ -1473,20 +1473,20 @@ static bool hamamatsu_vms_part2(openslide_t *osr,
 			  comment);
     }
 
-    if (fseeko(f, 0, SEEK_END)) {
+    if (urlio_fseek(f, 0, SEEK_END)) {
       _openslide_io_error(err, "Can't seek to end of JPEG %d", i);
-      fclose(f);
+      urlio_fclose(f);
       goto FAIL;
     }
-    jp->end_in_file = ftello(f);
+    jp->end_in_file = urlio_ftell(f);
     if (jp->end_in_file == -1) {
       _openslide_io_error(err, "Can't read file size for JPEG %d", i);
-      fclose(f);
+      urlio_fclose(f);
       goto FAIL;
     }
 
     // file is done now
-    fclose(f);
+    urlio_fclose(f);
 
     // init MCU starts
     jp->mcu_starts = g_new(int64_t, jp->tile_count);
@@ -1616,9 +1616,9 @@ static bool ngr_read_tile(openslide_t *osr,
       (tile_y * NGR_TILE_HEIGHT * l->column_width * 6) +
       (tile_x * l->base.h * l->column_width * 6);
     //g_debug("tile_x: %"PRId64", tile_y: %"PRId64", seeking to %"PRId64, tile_x, tile_y, offset);
-    if (fseeko(f, offset, SEEK_SET)) {
+    if (urlio_fseek(f, offset, SEEK_SET)) {
       _openslide_io_error(err, "Couldn't seek to tile offset");
-      fclose(f);
+      urlio_fclose(f);
       return false;
     }
 
@@ -1626,14 +1626,14 @@ static bool ngr_read_tile(openslide_t *osr,
     int buf_size = tw * th * 6;
     uint16_t *buf = g_slice_alloc(buf_size);
 
-    if (fread(buf, buf_size, 1, f) != 1) {
+    if (urlio_fread(buf, buf_size, 1, f) != 1) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Cannot read file %s", l->filename);
-      fclose(f);
+      urlio_fclose(f);
       g_slice_free1(buf_size, buf);
       return false;
     }
-    fclose(f);
+    urlio_fclose(f);
 
     // got the data, now convert to 8-bit xRGB
     tiledata = g_slice_alloc(tilesize);
@@ -1691,7 +1691,7 @@ static const struct _openslide_ops ngr_ops = {
 static int32_t read_le_int32_from_file(FILE *f) {
   int32_t i;
 
-  if (fread(&i, 4, 1, f) != 1) {
+  if (urlio_fread(&i, 4, 1, f) != 1) {
     return -1;
   }
 
@@ -1722,26 +1722,26 @@ static bool hamamatsu_vmu_part2(openslide_t *osr,
     }
 
     // validate magic
-    if ((fgetc(f) != 'G') || (fgetc(f) != 'N')) {
+    if ((urlio_fgetc(f) != 'G') || (urlio_fgetc(f) != 'N')) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Bad magic on NGR file, level %d", i);
-      fclose(f);
+      urlio_fclose(f);
       goto FAIL;
     }
 
     // read w, h, column width, headersize
-    if (fseeko(f, 4, SEEK_SET)) {
+    if (urlio_fseek(f, 4, SEEK_SET)) {
       _openslide_io_error(err, "Couldn't seek to NGR header");
-      fclose(f);
+      urlio_fclose(f);
       goto FAIL;
     }
     l->base.w = read_le_int32_from_file(f);
     l->base.h = read_le_int32_from_file(f);
     l->column_width = read_le_int32_from_file(f);
 
-    if (fseeko(f, 24, SEEK_SET)) {
+    if (urlio_fseek(f, 24, SEEK_SET)) {
       _openslide_io_error(err, "Couldn't seek within NGR header");
-      fclose(f);
+      urlio_fclose(f);
       goto FAIL;
     }
     l->start_in_file = read_le_int32_from_file(f);
@@ -1751,7 +1751,7 @@ static bool hamamatsu_vmu_part2(openslide_t *osr,
 	(l->column_width <= 0) || (l->start_in_file <= 0)) {
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Couldn't read header, level %d", i);
-      fclose(f);
+      urlio_fclose(f);
       goto FAIL;
     }
 
@@ -1760,7 +1760,7 @@ static bool hamamatsu_vmu_part2(openslide_t *osr,
       g_set_error(err, OPENSLIDE_ERROR, OPENSLIDE_ERROR_FAILED,
                   "Width %"PRId64" not multiple of column width %d",
                   l->base.w, l->column_width);
-      fclose(f);
+      urlio_fclose(f);
       goto FAIL;
     }
 
@@ -1776,7 +1776,7 @@ static bool hamamatsu_vmu_part2(openslide_t *osr,
     l->base.tile_w = l->column_width;
     l->base.tile_h = NGR_TILE_HEIGHT;
 
-    fclose(f);
+    urlio_fclose(f);
   }
 
   // set osr data
@@ -2044,7 +2044,7 @@ static bool hamamatsu_vms_vmu_open(openslide_t *osr, const char *filename,
 
     // clean up
     if (optimisation_file) {
-      fclose(optimisation_file);
+      urlio_fclose(optimisation_file);
     }
   } else if (groupname == GROUP_VMU) {
     // verify a few assumptions for VMU
@@ -2308,7 +2308,7 @@ static bool hamamatsu_ndpi_open(openslide_t *osr, const char *filename,
       int32_t jp_h = height; // overwritten if dimensions_valid
       int32_t jp_tw, jp_th;
       int64_t sof_position, header_stop_position;
-      if (fseeko(f, start_in_file, SEEK_SET)) {
+      if (urlio_fseek(f, start_in_file, SEEK_SET)) {
         _openslide_io_error(err, "Couldn't seek to JPEG start");
         goto FAIL;
       }
@@ -2425,7 +2425,7 @@ static bool hamamatsu_ndpi_open(openslide_t *osr, const char *filename,
 FAIL:
   // free
   if (f) {
-    fclose(f);
+    urlio_fclose(f);
   }
 
   // unwrap jpegs
