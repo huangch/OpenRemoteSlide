@@ -35,7 +35,7 @@ Here is another example: the command,
 helps you to read a defined region of interest on a whole slide image of TCGA over the Internet.
 
 
-OpenRemoteSlide is compatible with OpenSlide, except the Windows version.
+OpenRemoteSlide is compatible with OpenSlide (thus, compatible with OpenSlide-Python: https://github.com/openslide/openslide-python and OpenSlide-Java: https://github.com/openslide/openslide-java), except the Windows version.
 
 
 
