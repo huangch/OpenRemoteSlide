@@ -35,10 +35,10 @@
 #include <cairo.h>
 #include "openslide-url.h"
 
-#ifdef HAVE_FCNTL
-#include <unistd.h>
-#include <fcntl.h>
-#endif
+// #ifdef HAVE_FCNTL
+// #include <unistd.h>
+// #include <fcntl.h>
+// #endif
 
 #define KEY_FILE_HARD_MAX_SIZE (100 << 20)
 
