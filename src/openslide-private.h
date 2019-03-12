@@ -28,7 +28,7 @@
 
 #include "openslide.h"
 #include "openslide-hash.h"
-#include "openslide-url.h"
+#include "openslide-urlio.h"
 
 #include <glib.h>
 #include <stdio.h>

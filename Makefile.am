@@ -33,6 +33,7 @@ src_libopenslide_la_SOURCES = \
 	src/openslide-jdatasrc.c \
 	src/openslide-tables.c \
 	src/openslide-util.c \
+	src/openslide-urlio.c \
 	src/openslide-vendor-aperio.c \
 	src/openslide-vendor-generic-tiff.c \
 	src/openslide-vendor-hamamatsu.c \
@@ -86,6 +87,7 @@ noinst_HEADERS = \
 	src/openslide-decode-xml.h \
 	src/openslide-error.h \
 	src/openslide-hash.h \
+	src/openslide-urlio.h \
 	src/openslide-private.h
 
 

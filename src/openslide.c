@@ -239,7 +239,7 @@ static const char **strv_from_hashtable_keys(GHashTable *h) {
 openslide_t *openslide_open(const char *filename) {
   GError *tmp_err = NULL;
 
-  urlio_finitial();
+  urlio_initial();
 
   g_assert(openslide_was_dynamically_loaded);
 
@@ -377,7 +377,7 @@ void openslide_close(openslide_t *osr) {
 
   g_slice_free(openslide_t, osr);
 
-  urlio_frelease(osr->urlname);
+  urlio_release();
   free(osr->urlname);
 }
 
